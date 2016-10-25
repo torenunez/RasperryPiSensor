@@ -138,13 +138,13 @@ def to_plotly():
 	data = Data([temp, hum])
  
 	layout = Layout(
-					title="Temperature and humidity in Peter's lab",
+					title="Temperature and humidity in Sal's Lab",
 				    xaxis=XAxis(
 				        type='date',
 				        autorange=True
 				    ),
 				    yaxis=YAxis(
-				    	title='Celcius',
+				    	title='Celsius',
 				        type='linear',
 				        autorange=True
 				    ),
