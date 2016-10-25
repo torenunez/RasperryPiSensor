@@ -1,49 +1,3 @@
-'''
-FILE NAME
-lab_app.py
-Version 9
-
-1. WHAT IT DOES
-This version adds support for Plotly.
- 
-2. REQUIRES
-* Any Raspberry Pi
-
-3. ORIGINAL WORK
-Raspberry Full Stack 2015, Peter Dalmaris
-
-4. HARDWARE
-* Any Raspberry Pi
-* DHT11 or 22
-* 10KOhm resistor
-* Breadboard
-* Wires
-
-5. SOFTWARE
-Command line terminal
-Simple text editor
-Libraries:
-from flask import Flask, request, render_template, sqlite3
-
-6. WARNING!
-None
-
-7. CREATED 
-
-8. TYPICAL OUTPUT
-A simple web page served by this flask application in the user's browser.
-The page contains the current temperature and humidity.
-A second page that displays historical environment data from the SQLite3 database.
-The historical records can be selected by specifying a date range in the request URL.
-The user can now click on one of the date/time buttons to quickly select one of the available record ranges.
-The user can use Jquery widgets to select a date/time range.
-The user can explore historical data to Plotly for visualisation and processing.
-
- // 9. COMMENTS
---
- // 10. END
-'''
-
 from flask import Flask, request, render_template
 import time
 import datetime
@@ -89,9 +43,10 @@ def lab_env_db():
 												from_date 		= from_date_str, 
 												to_date 		= to_date_str,
 												temp_items 		= len(temperatures),
-												query_string	= request.query_string, #This query string is used
-																						#by the Plotly link
-												hum_items 		= len(humidities))
+												hum_items 		= len(humidities),
+												query_string	= request.query_string, #This query string is used by the Plotly link
+
+												)
 
 def get_records():
 	import sqlite3
@@ -148,26 +103,26 @@ def get_records():
 def to_plotly():
 	import plotly.plotly as py
 	from plotly.graph_objs import *
-
+ 
 	temperatures, humidities, timezone, from_date_str, to_date_str = get_records()
-
-	# Create new record tables so that datetimes are adjusted back to the user browser's time zone.
+ 
+	# Create new record tables so that datetimes are adjusted back to the user browser's time zone.	
 	time_series_adjusted_tempreratures  = []
 	time_series_adjusted_humidities 	= []
 	time_series_temprerature_values 	= []
 	time_series_humidity_values 		= []
-
+ 
 	for record in temperatures:
 		local_timedate = arrow.get(record[0], "YYYY-MM-DD HH:mm").to(timezone)
 		time_series_adjusted_tempreratures.append(local_timedate.format('YYYY-MM-DD HH:mm'))
 		time_series_temprerature_values.append(round(record[2],2))
-
+ 
 	for record in humidities:
 		local_timedate = arrow.get(record[0], "YYYY-MM-DD HH:mm").to(timezone)
 		time_series_adjusted_humidities.append(local_timedate.format('YYYY-MM-DD HH:mm')) #Best to pass datetime in text
 																						  #so that Plotly respects it
 		time_series_humidity_values.append(round(record[2],2))
-
+ 
 	temp = Scatter(
         		x=time_series_adjusted_tempreratures,
         		y=time_series_temprerature_values,
@@ -178,10 +133,10 @@ def to_plotly():
         		y=time_series_humidity_values,
         		name='Humidity',
         		yaxis='y2'
-    				)
-
+    				)		
+ 
 	data = Data([temp, hum])
-
+ 
 	layout = Layout(
 					title="Temperature and humidity in Peter's lab",
 				    xaxis=XAxis(
@@ -200,12 +155,12 @@ def to_plotly():
 				        overlaying='y',
 				        side='right'
 				    )
-
+ 
 					)
 	fig = Figure(data=data, layout=layout)
 	plot_url = py.plot(fig, filename='lab_temp_hum')
-
-	return plot_url
+ 
+	return plot_url 
 
 def validate_date(d):
     try:
